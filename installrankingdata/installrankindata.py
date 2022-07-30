@@ -38,37 +38,34 @@ for i in soup.find_all("li", class_="pref-name"): #解説
 #データ収集
 
 
-columns_list = ["URL", "県URL", "県名", "アカウントURL", "アカウント名", "友だち数"]
-account_url = {}
-account_name = {}
-friend_number = {}
+columns_list = ["県URL", "県名", "アカウントURL", "アカウント名", "友だち数"]
+account_url = []
+account_name = []
+friend_number = []
 
 
 #アカウントurl アカウント名　取得
 
 
 find_name_list = []
-find_Prefectures_list = []
-for i in Prefectures_dict.values():
+find_Prefectures_url_list = []
+for i, j in Prefectures_dict.items():
     
     
-    get = requests.get(i)
+    get = requests.get(j)
     url_soup = bs(get.text, "html.parser")
     find_name = url_soup.find_all("td", class_="name")
-    find_Prefectures = url_soup.find_all(class_="page-nav") ###ページの県名を取得してif?
-    for i in find_Prefectures:
-        a_tag = (i.contents[2]).replace(">", "")
-        b_tag = a_tag.strip()
-        find_Prefectures_list.append(b_tag)
+    
      
-    for i in find_name:
-        a_tag = i.contents[1]
+    for k in find_name:
+        a_tag = k.contents[1]
         tag_name = (a_tag.contents[0]).replace("\u3000", "") #空白を削除
         href_get = a_tag.get("href")
 
         account_name.append(tag_name) 
         account_url.append(href_get) 
-    
+        find_name_list.append(i)
+        find_Prefectures_url_list.append(j)
 #友だち数 取得
 
 for i in Prefectures_dict.values():
@@ -86,9 +83,9 @@ for i in Prefectures_dict.values():
 #DataFrame作成
 
 df = pd.DataFrame(columns=columns_list)
-df["URL"] = url
-df["県URL"] = Prefectures_dict.values()
-df["県名"] = Prefectures_dict.keys()
+#df["URL"] = url
+df["県URL"] = find_name_list
+df["県名"] = find_Prefectures_url_list
 df["アカウントURL"] = account_url
 df["アカウント名"] = account_name
 df["友だち数"] = friend_number
